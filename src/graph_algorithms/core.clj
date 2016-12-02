@@ -5,12 +5,12 @@
 
 (defn parse-undirected-graph [graph]
   (reduce (fn [acc [one two]] (-> acc
-                                  (update-in [one] conj two)
-                                  (update-in [two] conj one))) {} graph))
+                                  (update-in [one] clojure.set/union #{two})
+                                  (update-in [two] clojure.set/union #{one}))) {} graph))
 
 (defn parse-directed-graph [graph]
   (reduce (fn [acc [one two]] (-> acc
-                                  (update-in [one] conj two))) {} graph))
+                                  (update-in [one] clojure.set/union #{two}))) {} graph))
 
 (defn parse-input [graph parse-graph-fn]
   (-> (parse-graph-fn graph)
