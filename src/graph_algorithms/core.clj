@@ -23,7 +23,7 @@
         [entry & _ :as matches] (filter #(let [[prev postv] (get-in graph [:tick v])
                                                   [pree poste] (get-in graph [:tick %1])]
                                  (> prev pree)) visited)]
-    (if entry (update-in graph [:cycle v] concat matches) graph)))
+    (if entry (update-in graph [:cycle v] clojure.set/union (set matches)) graph)))
 
 (defn explore [graph v]
   (let [tick-count (fn [graph v] (if v
@@ -39,10 +39,11 @@
       graph
       (loop [stack []
              currentv v
-             currentgraph (previsit graph v)]
+             currentgraph (mark-visited (previsit graph currentv) currentv)]
+        ;(println "Iteration " currentv stack currentgraph)
         (if (nil? currentv)
           currentgraph
-          (let [[top & bottom :as vertices] (find-unvisited-children currentgraph currentv)
+          (let [[top & _ :as vertices] (find-unvisited-children currentgraph currentv)
                 currentgraph (check-cycle currentgraph currentv)]
             (if (empty? vertices)
               (recur (into [] (butlast stack)) (last stack) (mark-visited (postvisit currentgraph currentv) (last stack)))
